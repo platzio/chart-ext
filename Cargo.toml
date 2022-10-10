@@ -4,7 +4,12 @@ edition = "2021"
 license = "Apache-2.0"
 name = "platz-chart-ext"
 repository = "https://github.com/platzio/chart-ext"
-version = "0.4.0"
+version = "0.4.1"
+
+[features]
+default = ["uuid1"]
+uuid08 = ["dep:uuid08"]
+uuid1 = ["dep:uuid"]
 
 [dependencies]
 anyhow = "1.0.56"
@@ -18,9 +23,9 @@ strum = {version = "0.24", features = ["derive"]}
 thiserror = "1.0.30"
 tokio = {version = "1", features = ["fs", "macros"]}
 url = "2.2.2"
-uuid = "0.8.2"
+uuid = {optional = true, package = "uuid", version = "1", features = ["v4"]}
+uuid08 = {optional = true, package = "uuid", version = "0.8.2", features = ["v4"]}
 
 [dev-dependencies]
 anyhow = "1"
 tokio = {version = "1", features = ["rt-multi-thread"]}
-uuid = {version = "0.8.2", features = ["v4"]}

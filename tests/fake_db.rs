@@ -1,7 +1,10 @@
 use platz_chart_ext::{UiSchemaCollections, UiSchemaInputError};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+#[cfg(feature = "uuid1")]
 use uuid::Uuid;
+#[cfg(feature = "uuid08")]
+use uuid08::Uuid;
 
 #[derive(Debug, Deserialize, Serialize, strum::Display)]
 pub enum TestDb {

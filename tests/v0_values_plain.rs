@@ -4,7 +4,10 @@ use anyhow::Result;
 use fake_db::TestDb;
 use platz_chart_ext::UiSchema;
 use serde_json::json;
+#[cfg(feature = "uuid1")]
 use uuid::Uuid;
+#[cfg(feature = "uuid08")]
+use uuid08::Uuid;
 
 #[tokio::test]
 async fn test() -> Result<()> {
