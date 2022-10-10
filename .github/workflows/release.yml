@@ -1,0 +1,29 @@
+name: Publish to crates.io
+
+on:
+  push:
+    tags:
+      - v**
+
+jobs:
+  build:
+    name: 🚀 Publish to crates.io
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛠 Checkout
+        uses: actions/checkout@v3
+
+      - name: 📦 Install Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: 📦 Cargo clippy + build
+        run: |
+          cargo clippy -- -D warnings
+          cargo build
+
+      - name: 🚀 Publish Crate
+        uses: katyo/publish-crates@v1
+        with:
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
