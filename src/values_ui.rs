@@ -5,6 +5,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
+use strum::{EnumDiscriminants, EnumString};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -111,10 +112,8 @@ pub struct UiSchemaV1Beta1 {
     pub inner: UiSchemaV0,
 }
 
-#[derive(
-    Clone, Debug, Deserialize, Serialize, strum_macros::EnumString, strum_macros::EnumDiscriminants,
-)]
-#[strum_discriminants(derive(strum_macros::EnumString, strum_macros::Display))]
+#[derive(Clone, Debug, Deserialize, Serialize, EnumString, EnumDiscriminants)]
+#[strum_discriminants(derive(EnumString, strum::Display))]
 #[strum_discriminants(strum(ascii_case_insensitive))]
 pub enum UiSchemaInputSingleType {
     #[serde(rename = "text")]
