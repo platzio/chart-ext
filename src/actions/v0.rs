@@ -3,10 +3,7 @@ use crate::error::UiSchemaInputError;
 use crate::values_ui::UiSchema;
 use serde::{Deserialize, Serialize};
 use url::Url;
-#[cfg(feature = "uuid1")]
 use uuid::Uuid;
-#[cfg(feature = "uuid08")]
-use uuid08::Uuid;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ChartExtActions {

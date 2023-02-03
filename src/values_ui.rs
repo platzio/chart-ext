@@ -6,10 +6,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 use strum::{EnumDiscriminants, EnumString};
-#[cfg(feature = "uuid1")]
 use uuid::Uuid;
-#[cfg(feature = "uuid08")]
-use uuid08::Uuid;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(untagged)]

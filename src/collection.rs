@@ -1,10 +1,7 @@
 use crate::UiSchemaInputError;
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
-#[cfg(feature = "uuid1")]
 use uuid::Uuid;
-#[cfg(feature = "uuid08")]
-use uuid08::Uuid;
 
 #[async_trait]
 pub trait UiSchemaCollections
