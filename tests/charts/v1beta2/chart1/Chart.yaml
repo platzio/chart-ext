@@ -1,0 +1,9 @@
+apiVersion: v2
+name: Test chart
+version: 1.0.0
+
+annotations:
+  platz.io/git/commit: 7e6689955ae108ecc25d72088f9fec77bd6d7e5a
+  platz.io/git/branch: main
+  platz.io/git/repo: https://github.com/platzio/chart-ext
+  platz.io/git/provider: github

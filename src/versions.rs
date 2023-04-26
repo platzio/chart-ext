@@ -1,6 +1,18 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub enum HelmChartV2 {
+    #[serde(rename = "v2")]
+    Value,
+}
+
+impl Default for HelmChartV2 {
+    fn default() -> Self {
+        Self::Value
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum V1Beta1 {
     #[serde(rename = "platz.io/v1beta1")]
     Value,

@@ -11,12 +11,24 @@ use platz_chart_ext::{
     ChartExtIngressHostnameFormat, UiSchema,
 };
 use serde_json::json;
+use url::Url;
 use utils::load_chart;
 use uuid::Uuid;
 
 #[tokio::test]
 async fn test1() -> Result<()> {
     let chart_ext = load_chart("v1beta2/chart1").await?;
+
+    let metadata = chart_ext.metadata.expect("Chart has no metadata");
+    assert_eq!(metadata.version, "1.0.0");
+    assert!(metadata.git_commit.is_some());
+    assert_eq!(metadata.git_branch, Some("main".to_owned()));
+    assert_eq!(
+        metadata.git_repo,
+        Some(Url::parse("https://github.com/platzio/chart-ext").unwrap())
+    );
+    assert_eq!(metadata.git_provider, Some("github".to_owned()));
+
     let ui_schema = chart_ext.ui_schema.expect("No ui_schema");
     assert!(matches!(ui_schema, UiSchema::V1Beta1(_)));
     let inputs = json!({

@@ -17,7 +17,7 @@ serde_yaml = "0.9.9"
 strum = {version = "0.24", features = ["derive"]}
 thiserror = "1.0.30"
 tokio = {version = "1", features = ["fs", "macros"]}
-url = "2.2.2"
+url = {version = "2.2.2", features = ["serde"]}
 uuid = {version = "1", features = ["v4"]}
 
 [dev-dependencies]
