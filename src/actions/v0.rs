@@ -1,6 +1,6 @@
 use crate::collection::UiSchemaCollections;
 use crate::error::UiSchemaInputError;
-use crate::values_ui::UiSchema;
+use crate::ui_schema::UiSchema;
 use serde::{Deserialize, Serialize};
 use url::Url;
 use uuid::Uuid;

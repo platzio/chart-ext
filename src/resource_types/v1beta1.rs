@@ -1,5 +1,5 @@
 use crate::actions::v0::{ChartExtActionTarget, UserDeploymentRole};
-use crate::values_ui::UiSchemaV0;
+use crate::ui_schema::UiSchemaV0;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

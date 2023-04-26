@@ -1,6 +1,6 @@
 use super::actions::ChartExtActions;
 use super::features::ChartExtFeatures;
-use super::values_ui::UiSchema;
+use super::ui_schema::UiSchema;
 use crate::resource_types::ChartExtResourceTypes;
 use serde::{de::DeserializeOwned, Serialize};
 use std::path::Path;
@@ -9,7 +9,7 @@ use tokio::try_join;
 
 #[derive(Debug)]
 pub struct ChartExt {
-    pub values_ui: Option<UiSchema>,
+    pub ui_schema: Option<UiSchema>,
     pub actions: Option<ChartExtActions>,
     pub features: Option<ChartExtFeatures>,
     pub resource_types: Option<ChartExtResourceTypes>,
@@ -19,15 +19,15 @@ pub struct ChartExt {
 impl ChartExt {
     pub async fn from_path(path: &Path) -> Result<Self, std::io::Error> {
         match read_chart_extensions(path).await {
-            Ok((values_ui, actions, features, resource_types)) => Ok(Self {
-                values_ui,
+            Ok((ui_schema, actions, features, resource_types)) => Ok(Self {
+                ui_schema,
                 actions,
                 features,
                 resource_types,
                 error: None,
             }),
             Err(error @ ChartExtError::ParseError(_, _)) => Ok(Self {
-                values_ui: None,
+                ui_schema: None,
                 actions: None,
                 features: None,
                 resource_types: None,
@@ -39,7 +39,7 @@ impl ChartExt {
 
     pub fn new_with_error(error: String) -> Self {
         Self {
-            values_ui: None,
+            ui_schema: None,
             actions: None,
             features: None,
             resource_types: None,
@@ -96,7 +96,7 @@ async fn read_chart_extensions(
 
 async fn try_read_chart_extensions(
     chart_path: &Path,
-    values_ui_filename: Option<&str>,
+    ui_schema_filename: Option<&str>,
     actions_filename: Option<&str>,
     features_filename: Option<&str>,
     resource_types_filename: Option<&str>,
@@ -110,7 +110,7 @@ async fn try_read_chart_extensions(
     ChartExtError,
 > {
     Ok(try_join!(
-        read_spec_file(chart_path, values_ui_filename),
+        read_spec_file(chart_path, ui_schema_filename),
         read_spec_file(chart_path, actions_filename),
         read_spec_file(chart_path, features_filename),
         read_spec_file(chart_path, resource_types_filename),

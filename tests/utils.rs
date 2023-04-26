@@ -15,8 +15,8 @@ pub async fn load_chart(relative_path: &str) -> Result<ChartExt> {
     println!("{:#?}", chart_ext);
 
     if chart_ext.error.is_none() {
-        if let Some(values_ui) = chart_ext.values_ui.as_ref() {
-            let json = serde_json::to_value(values_ui)
+        if let Some(ui_schema) = chart_ext.ui_schema.as_ref() {
+            let json = serde_json::to_value(ui_schema)
                 .expect("Error serializing UiSchema to JSON after successfully deserializing it");
             let _parsed: UiSchema =
                 serde_json::from_value(json).expect("Failed deserializing UiSchema from JSON");

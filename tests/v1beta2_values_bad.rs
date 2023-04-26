@@ -8,6 +8,6 @@ use utils::load_chart;
 async fn test() -> Result<()> {
     let chart_ext = load_chart("v1beta2/chart2").await?;
     println!("{:?}", chart_ext);
-    assert!(matches!(chart_ext.values_ui, None));
+    assert!(matches!(chart_ext.ui_schema, None));
     Ok(())
 }

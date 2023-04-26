@@ -11,12 +11,12 @@ use uuid::Uuid;
 #[tokio::test]
 async fn test() -> Result<()> {
     let chart_ext = load_chart("v0/chart4").await?;
-    let values_ui = chart_ext.values_ui.expect("No values_ui");
+    let ui_schema = chart_ext.ui_schema.expect("No ui_schema");
 
     let inputs1 = json!({
         "required_enum": "value2",
     });
-    let values1: serde_json::Value = values_ui
+    let values1: serde_json::Value = ui_schema
         .get_values::<TestDb>(Uuid::new_v4(), &inputs1)
         .await?
         .into();
@@ -32,7 +32,7 @@ async fn test() -> Result<()> {
     });
     let _missing = "required_dependent_num".to_owned();
     assert!(std::matches!(
-        values_ui
+        ui_schema
             .get_values::<TestDb>(Uuid::new_v4(), &inputs2)
             .await,
         Err(UiSchemaInputError::MissingInputValue(_missing))
@@ -42,7 +42,7 @@ async fn test() -> Result<()> {
         "required_enum": "value3",
         "required_dependent_num": 5,
     });
-    let values3: serde_json::Value = values_ui
+    let values3: serde_json::Value = ui_schema
         .get_values::<TestDb>(Uuid::new_v4(), &inputs3)
         .await?
         .into();
