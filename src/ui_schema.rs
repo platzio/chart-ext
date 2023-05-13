@@ -1,3 +1,5 @@
+use crate::versions::ChartExtKindValuesUi;
+use crate::versions::ChartExtVersionV1Beta1;
 use crate::UiSchemaCollections;
 use crate::UiSchemaInputError;
 use rust_decimal::Decimal;
@@ -9,6 +11,7 @@ use strum::{EnumDiscriminants, EnumString};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(untagged)]
 pub enum UiSchema {
     V1Beta1(UiSchemaV1Beta1),
@@ -73,7 +76,7 @@ impl UiSchema {
             Self::V1Beta1(v1) => (&v1.inner.inputs, &v1.inner.outputs),
             Self::V0(v0) => (&v0.inputs, &v0.outputs),
         };
-        for (secret_name, attrs_schema) in schema_outputs.secrets.iter() {
+        for (secret_name, attrs_schema) in schema_outputs.secrets.0.iter() {
             let mut attrs: BTreeMap<String, String> = Default::default();
             for (key, attr_schema) in attrs_schema.iter() {
                 let value = attr_schema
@@ -96,6 +99,7 @@ impl UiSchema {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(deny_unknown_fields)]
 pub struct UiSchemaV0 {
     pub inputs: Vec<UiSchemaInput>,
@@ -104,15 +108,17 @@ pub struct UiSchemaV0 {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct UiSchemaV1Beta1 {
-    pub api_version: crate::versions::V1Beta1,
-    pub kind: crate::versions::ValuesUi,
+    pub api_version: ChartExtVersionV1Beta1,
+    pub kind: ChartExtKindValuesUi,
     #[serde(flatten)]
     pub inner: UiSchemaV0,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, EnumString, EnumDiscriminants)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[strum_discriminants(derive(EnumString, strum::Display))]
 #[strum_discriminants(strum(ascii_case_insensitive))]
 pub enum UiSchemaInputSingleType {
@@ -129,6 +135,7 @@ pub enum UiSchemaInputSingleType {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(try_from = "SerializedUiSchemaInputType")]
 #[serde(into = "SerializedUiSchemaInputType")]
 pub struct UiSchemaInputType {
@@ -137,7 +144,8 @@ pub struct UiSchemaInputType {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-struct SerializedUiSchemaInputType {
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct SerializedUiSchemaInputType {
     r#type: String,
     #[serde(rename = "itemType")]
     item_type: Option<String>,
@@ -205,12 +213,14 @@ impl From<UiSchemaInputType> for SerializedUiSchemaInputType {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FieldValuePair {
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct UiSchemaFieldValuePair {
     field: String,
     value: serde_json::Value,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct UiSchemaInput {
     pub id: String,
@@ -228,7 +238,7 @@ pub struct UiSchemaInput {
     #[serde(default)]
     pub options: Option<Vec<UiSchemaInputFieldOption>>,
     #[serde(default)]
-    show_if_all: Option<Vec<FieldValuePair>>,
+    show_if_all: Option<Vec<UiSchemaFieldValuePair>>,
     #[serde(default)]
     filters: Option<Vec<UiSchemaInputFieldValue>>,
     #[serde(default)]
@@ -240,6 +250,7 @@ pub struct UiSchemaInput {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct UiSchemaInputFieldOption {
     pub value: serde_json::Value,
@@ -250,14 +261,18 @@ pub struct UiSchemaInputFieldOption {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct UiSchemaInputFieldValue {
     pub field: String,
     pub value: serde_json::Value,
 }
 
-pub type UiSchemaOutputSecrets = HashMap<String, HashMap<String, UiSchemaInputRef>>;
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct UiSchemaOutputSecrets(pub HashMap<String, HashMap<String, UiSchemaInputRef>>);
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct UiSchemaOutputs {
     pub values: Vec<UiSchemaOutputValue>,
     #[serde(default)]
@@ -265,20 +280,23 @@ pub struct UiSchemaOutputs {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct InputFieldValue {
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum UiSchemaInputRef {
+    FieldValue(UiSchemaInputRefField),
+    FieldProperty(UiSchemaInputRefProperty),
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct UiSchemaInputRefField {
     pub input: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct InputFieldProperty {
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct UiSchemaInputRefProperty {
     pub input: String,
     pub property: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum UiSchemaInputRef {
-    FieldValue(InputFieldValue),
-    FieldProperty(InputFieldProperty),
 }
 
 impl UiSchemaInputRef {
@@ -383,6 +401,7 @@ impl UiSchemaInputRef {
 type Map = serde_json::Map<String, serde_json::Value>;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct UiSchemaOutputValue {
     pub path: Vec<String>,
     pub value: UiSchemaInputRef,

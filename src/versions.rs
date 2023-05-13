@@ -1,85 +1,57 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum HelmChartV2 {
+    #[default]
     #[serde(rename = "v2")]
     Value,
 }
 
-impl Default for HelmChartV2 {
-    fn default() -> Self {
-        Self::Value
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum V1Beta1 {
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum ChartExtVersionV1Beta1 {
+    #[default]
     #[serde(rename = "platz.io/v1beta1")]
     Value,
 }
 
-impl Default for V1Beta1 {
-    fn default() -> Self {
-        Self::Value
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum V1Beta2 {
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum ChartExtVersionV1Beta2 {
+    #[default]
     #[serde(rename = "platz.io/v1beta2")]
     Value,
 }
 
-impl Default for V1Beta2 {
-    fn default() -> Self {
-        Self::Value
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum ValuesUi {
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum ChartExtKindValuesUi {
+    #[default]
     #[serde(rename = "ValuesUi")]
     Value,
 }
 
-impl Default for ValuesUi {
-    fn default() -> Self {
-        Self::Value
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum Action {
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum ChartExtKindAction {
+    #[default]
     #[serde(rename = "Action")]
     Value,
 }
 
-impl Default for Action {
-    fn default() -> Self {
-        Self::Value
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum Features {
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum ChartExtKindFeatures {
+    #[default]
     #[serde(rename = "Features")]
     Value,
 }
 
-impl Default for Features {
-    fn default() -> Self {
-        Self::Value
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum ResourceType {
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum ChartExtKindResourceType {
+    #[default]
     #[serde(rename = "ResourceType")]
     Value,
-}
-
-impl Default for ResourceType {
-    fn default() -> Self {
-        Self::Value
-    }
 }

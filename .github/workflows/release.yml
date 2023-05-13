@@ -18,9 +18,13 @@ jobs:
         with:
           toolchain: stable
 
-      - name: 📦 Cargo clippy + build
+      - name: 📦 Cargo clippy
         run: |
           cargo clippy -- -D warnings
+          cargo clippy --features=utoipa -- -D warnings
+
+      - name: 📦 Cargo build
+        run: |
           cargo build
 
       - name: 🚀 Publish Crate

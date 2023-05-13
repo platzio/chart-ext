@@ -2,16 +2,20 @@ pub mod v0;
 pub mod v1beta1;
 pub mod v1beta2;
 
+use self::v0::ChartExtFeaturesV0;
+use self::v1beta1::ChartExtFeaturesV1Beta1;
+use self::v1beta2::ChartExtFeaturesV1Beta2;
 use serde::{Deserialize, Serialize};
 pub use v0::ChartExtCardinality;
 pub use v1beta2::{ChartExtIngress, ChartExtIngressHostnameFormat};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(untagged)]
 pub enum ChartExtFeatures {
-    V1Beta2(v1beta2::ChartExtFeaturesV1Beta2),
-    V1Beta1(v1beta1::ChartExtFeaturesV1Beta1),
-    V0(v0::ChartExtFeatures),
+    V1Beta2(ChartExtFeaturesV1Beta2),
+    V1Beta1(ChartExtFeaturesV1Beta1),
+    V0(ChartExtFeaturesV0),
 }
 
 impl Default for ChartExtFeatures {

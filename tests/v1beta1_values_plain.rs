@@ -39,7 +39,7 @@ async fn test() -> Result<()> {
     chart_ext.features.expect("No features");
 
     let resource_types = chart_ext.resource_types.expect("No resource types");
-    assert_eq!(resource_types.inner.len(), 1);
+    assert_eq!(resource_types.0.len(), 1);
 
     Ok(())
 }

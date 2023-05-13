@@ -3,11 +3,13 @@ use serde::{Deserialize, Serialize};
 use url::Url;
 
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(from = "HelmChart")]
 pub struct ChartMetadata {
     pub version: String,
     pub git_commit: Option<String>,
     pub git_branch: Option<String>,
+    #[cfg_attr(feature="utoipa", schema(value_type = Option<String>))]
     pub git_repo: Option<Url>,
     pub git_provider: Option<String>,
 }

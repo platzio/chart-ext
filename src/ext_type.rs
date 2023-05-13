@@ -10,6 +10,7 @@ use tokio::fs::{self, read_to_string};
 use tokio::try_join;
 
 #[derive(Debug)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct ChartExt {
     pub metadata: Option<ChartMetadata>,
     pub ui_schema: Option<UiSchema>,

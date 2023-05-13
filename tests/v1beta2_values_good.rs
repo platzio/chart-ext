@@ -71,7 +71,7 @@ async fn test1() -> Result<()> {
     );
 
     let resource_types = chart_ext.resource_types.expect("No resource types");
-    assert_eq!(resource_types.inner.len(), 1);
+    assert_eq!(resource_types.0.len(), 1);
 
     Ok(())
 }
@@ -83,7 +83,7 @@ async fn test2() -> Result<()> {
     match ui_schema {
         UiSchema::V0(_) => panic!("Expected UiSchema::V1Beta1"),
         UiSchema::V1Beta1(schema) => {
-            assert_eq!(schema.inner.outputs.secrets.len(), 2);
+            assert_eq!(schema.inner.outputs.secrets.0.len(), 2);
         }
     }
 
@@ -110,7 +110,7 @@ async fn test2() -> Result<()> {
     );
 
     let resource_types = chart_ext.resource_types.expect("No resource types");
-    assert_eq!(resource_types.inner.len(), 1);
+    assert_eq!(resource_types.0.len(), 1);
 
     Ok(())
 }

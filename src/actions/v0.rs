@@ -6,30 +6,34 @@ use url::Url;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ChartExtActions {
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct ChartExtActionsV0 {
     pub schema_version: u64,
-    pub actions: Vec<ChartExtAction>,
+    pub actions: Vec<ChartExtActionV0>,
 }
 
-impl ChartExtActions {
-    pub fn find(&self, action_id: &str) -> Option<&ChartExtAction> {
+impl ChartExtActionsV0 {
+    pub fn find(&self, action_id: &str) -> Option<&ChartExtActionV0> {
         self.actions.iter().find(|action| action.id == action_id)
     }
 }
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum UserDeploymentRole {
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub enum ChartExtActionUserDeploymentRole {
     Owner,
     Maintainer,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum ChartExtActionEndpoint {
     #[serde(rename = "standard_ingress")]
     StandardIngress,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(rename_all = "UPPERCASE")]
 pub enum ChartExtActionMethod {
     Get,
@@ -40,6 +44,7 @@ pub enum ChartExtActionMethod {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct ChartExtActionTarget {
     pub endpoint: ChartExtActionEndpoint,
     pub path: String,
@@ -78,9 +83,10 @@ pub trait ChartExtActionTargetResolver {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ChartExtAction {
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+pub struct ChartExtActionV0 {
     pub id: String,
-    pub allowed_role: UserDeploymentRole,
+    pub allowed_role: ChartExtActionUserDeploymentRole,
     #[serde(flatten)]
     pub target: ChartExtActionTarget,
     pub title: String,
@@ -89,7 +95,7 @@ pub struct ChartExtAction {
     pub ui_schema: Option<UiSchema>,
 }
 
-impl ChartExtAction {
+impl ChartExtActionV0 {
     pub async fn generate_body<C>(
         &self,
         env_id: Uuid,

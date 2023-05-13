@@ -15,3 +15,6 @@ pub use ext_type::*;
 pub use features::*;
 pub use metadata::*;
 pub use ui_schema::*;
+
+#[cfg(feature = "utoipa")]
+pub mod openapi;

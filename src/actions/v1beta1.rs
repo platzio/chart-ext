@@ -1,15 +1,16 @@
-use super::v0;
-
+use super::v0::ChartExtActionV0;
+use crate::versions::{ChartExtKindAction, ChartExtVersionV1Beta1};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(transparent)]
-pub struct ChartExtActions {
-    pub actions: Vec<ChartExtAction>,
+pub struct ChartExtActionsV1Beta1 {
+    pub actions: Vec<ChartExtActionV1Beta1>,
 }
 
-impl ChartExtActions {
-    pub fn find(&self, action_id: &str) -> Option<&v0::ChartExtAction> {
+impl ChartExtActionsV1Beta1 {
+    pub fn find(&self, action_id: &str) -> Option<&ChartExtActionV0> {
         self.actions
             .iter()
             .find(|action| action.spec.id == action_id)
@@ -18,9 +19,10 @@ impl ChartExtActions {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(rename_all = "camelCase")]
-pub struct ChartExtAction {
-    pub api_version: crate::versions::V1Beta1,
-    pub kind: crate::versions::Action,
-    pub spec: v0::ChartExtAction,
+pub struct ChartExtActionV1Beta1 {
+    pub api_version: ChartExtVersionV1Beta1,
+    pub kind: ChartExtKindAction,
+    pub spec: ChartExtActionV0,
 }
