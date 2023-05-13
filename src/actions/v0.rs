@@ -92,6 +92,7 @@ pub struct ChartExtActionV0 {
     pub title: String,
     pub fontawesome_icon: Option<String>,
     pub description: String,
+    pub dangerous: bool,
     pub ui_schema: Option<UiSchema>,
 }
 
