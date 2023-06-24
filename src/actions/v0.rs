@@ -87,11 +87,14 @@ pub trait ChartExtActionTargetResolver {
 pub struct ChartExtActionV0 {
     pub id: String,
     pub allowed_role: ChartExtActionUserDeploymentRole,
+    #[serde(default)]
+    pub allowed_on_statuses: Vec<String>,
     #[serde(flatten)]
     pub target: ChartExtActionTarget,
     pub title: String,
     pub fontawesome_icon: Option<String>,
     pub description: String,
+    #[serde(default)]
     pub dangerous: bool,
     pub ui_schema: Option<UiSchema>,
 }
