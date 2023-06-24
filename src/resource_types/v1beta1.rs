@@ -1,4 +1,4 @@
-use crate::actions::v0::{ChartExtActionTarget, ChartExtActionUserDeploymentRole};
+use crate::actions::{ChartExtActionTarget, ChartExtActionUserDeploymentRole};
 use crate::ui_schema::UiSchemaV0;
 use crate::versions::{ChartExtKindResourceType, ChartExtVersionV1Beta1};
 use serde::{Deserialize, Serialize};

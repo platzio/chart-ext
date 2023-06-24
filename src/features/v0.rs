@@ -1,4 +1,4 @@
-use crate::actions::v0::ChartExtActionEndpoint;
+use crate::actions::ChartExtActionEndpoint;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

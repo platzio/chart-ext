@@ -1,13 +1,15 @@
-pub mod v0;
-pub mod v1beta1;
-pub mod v1beta2;
+mod v0;
+mod v1beta1;
+mod v1beta2;
 
-use self::v0::ChartExtFeaturesV0;
-use self::v1beta1::ChartExtFeaturesV1Beta1;
-use self::v1beta2::ChartExtFeaturesV1Beta2;
+pub use self::v0::{ChartExtCardinality, ChartExtFeaturesV0, ChartExtStatusFeature};
+pub use self::v1beta1::ChartExtFeaturesV1Beta1;
+pub use self::v1beta2::{
+    ChartExtDeploymentDisplay, ChartExtDeploymentDisplayIcon, ChartExtDeploymentDisplayName,
+    ChartExtDeploymentDisplayNameInputField, ChartExtFeaturesSpec, ChartExtFeaturesV1Beta2,
+    ChartExtIngress, ChartExtIngressHostnameFormat,
+};
 use serde::{Deserialize, Serialize};
-pub use v0::ChartExtCardinality;
-pub use v1beta2::{ChartExtIngress, ChartExtIngressHostnameFormat};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]

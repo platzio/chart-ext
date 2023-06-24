@@ -1,6 +1,9 @@
-pub mod v1beta1;
+mod v1beta1;
 
-use self::v1beta1::ChartExtResourceTypeV1Beta1;
+pub use self::v1beta1::{
+    ChartExtResourceLifecycleActionV1Beta1, ChartExtResourceLifecycleV1Beta1,
+    ChartExtResourceTypeV1Beta1, ChartExtResourceTypeV1Beta1Spec,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]

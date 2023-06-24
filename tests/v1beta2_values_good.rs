@@ -4,11 +4,8 @@ mod utils;
 use anyhow::Result;
 use fake_db::TestDb;
 use platz_chart_ext::{
-    v1beta2::{
-        ChartExtDeploymentDisplay, ChartExtDeploymentDisplayIcon, ChartExtDeploymentDisplayName,
-        ChartExtDeploymentDisplayNameInputField,
-    },
-    ChartExtIngressHostnameFormat, UiSchema,
+    ChartExtDeploymentDisplay, ChartExtDeploymentDisplayIcon, ChartExtDeploymentDisplayName,
+    ChartExtDeploymentDisplayNameInputField, ChartExtIngressHostnameFormat, UiSchema,
 };
 use serde_json::json;
 use url::Url;

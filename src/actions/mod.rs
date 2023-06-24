@@ -1,10 +1,13 @@
-pub mod v0;
-pub mod v1beta1;
+mod v0;
+mod v1beta1;
 
-use self::v0::ChartExtActionsV0;
-use self::v1beta1::ChartExtActionsV1Beta1;
+pub use self::v0::{
+    ChartExtActionEndpoint, ChartExtActionMethod, ChartExtActionTarget,
+    ChartExtActionTargetResolver, ChartExtActionUserDeploymentRole, ChartExtActionV0,
+    ChartExtActionsV0,
+};
+pub use self::v1beta1::{ChartExtActionV1Beta1, ChartExtActionsV1Beta1};
 use serde::{Deserialize, Serialize};
-pub use v0::{ChartExtActionEndpoint, ChartExtActionTarget, ChartExtActionTargetResolver};
 
 #[derive(Debug, Deserialize, Serialize)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
