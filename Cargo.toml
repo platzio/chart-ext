@@ -4,7 +4,7 @@ edition = "2021"
 license = "Apache-2.0"
 name = "platz-chart-ext"
 repository = "https://github.com/platzio/chart-ext"
-version = "0.5.4"
+version = "0.5.5"
 
 [features]
 default = []
