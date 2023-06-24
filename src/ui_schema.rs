@@ -144,10 +144,10 @@ pub struct UiSchemaInputType {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct SerializedUiSchemaInputType {
     r#type: String,
-    #[serde(rename = "itemType")]
     item_type: Option<String>,
     collection: Option<serde_json::Value>,
 }
@@ -225,6 +225,7 @@ pub struct UiSchemaFieldValuePair {
 pub struct UiSchemaInput {
     pub id: String,
     #[serde(flatten)]
+    #[cfg_attr(feature = "utoipa", schema(value_type = SerializedUiSchemaInputType))]
     pub input_type: UiSchemaInputType, // Parsed from actual fields: type, item_type and collection, see SerializedUiSchemaInputType
     label: String,
     #[serde(default)]
