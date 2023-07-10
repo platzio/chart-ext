@@ -241,6 +241,8 @@ pub struct UiSchemaInput {
     #[serde(default)]
     show_if_all: Option<Vec<UiSchemaFieldValuePair>>,
     #[serde(default)]
+    show_if: Option<serde_json::Value>,
+    #[serde(default)]
     filters: Option<Vec<UiSchemaInputFieldValue>>,
     #[serde(default)]
     minimum: Option<Decimal>,
@@ -322,7 +324,12 @@ impl UiSchemaInputRef {
     where
         C: UiSchemaCollections,
     {
-        if let Some(show_if_all) = schema.show_if_all.as_ref() {
+        if let Some(show_if) = schema.show_if.as_ref() {
+            let res = jsonlogic_rs::apply(show_if, inputs);
+            if !matches!(res, Ok(serde_json::Value::Bool(true))) {
+                return Err(UiSchemaInputError::OptionalInputMissing(id.to_owned()));
+            }
+        } else if let Some(show_if_all) = schema.show_if_all.as_ref() {
             if show_if_all
                 .iter()
                 .any(|fv| inputs.get(&fv.field) != Some(&fv.value))
