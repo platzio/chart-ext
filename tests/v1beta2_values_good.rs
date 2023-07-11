@@ -129,3 +129,111 @@ async fn test3() -> Result<()> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn test4() -> Result<()> {
+    let chart_ext = load_chart("v1beta2/chart5").await?;
+
+    let metadata = chart_ext.metadata.expect("Chart has no metadata");
+    assert_eq!(metadata.version, "1.0.0");
+
+    let ui_schema = chart_ext.ui_schema.expect("No ui_schema");
+    assert!(matches!(ui_schema, UiSchema::V1Beta1(_)));
+
+    // No showIf is met
+    {
+        let inputs = json!({
+            "required_bool": false,
+            "required_num": 3,
+            "required_text": "blah",
+            "conditional_bool": true,
+            "conditional_text": "lolz",
+        });
+
+        let values: serde_json::Value = ui_schema
+            .get_values::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?
+            .into();
+        let expected = json!({
+            "config": {
+                "required_num": 3,
+                "required_text": "blah",
+            }
+        });
+        assert_eq!(values, expected);
+    }
+
+    // First showIf is met
+    {
+        let inputs = json!({
+            "required_bool": true,
+            "required_num": 3,
+            "required_text": "blah",
+            "conditional_bool": true,
+            "conditional_text": "lolz",
+        });
+
+        let values: serde_json::Value = ui_schema
+            .get_values::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?
+            .into();
+        let expected = json!({
+            "config": {
+                "required_num": 3,
+                "required_text": "blah",
+                "conditional_bool": true,
+            }
+        });
+        assert_eq!(values, expected);
+    }
+
+    // Second showIf is met
+    {
+        let inputs = json!({
+            "required_bool": false,
+            "required_num": 500,
+            "required_text": "aaaah",
+            "conditional_text": "lolz",
+        });
+
+        let values: serde_json::Value = ui_schema
+            .get_values::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?
+            .into();
+        let expected = json!({
+            "config": {
+                "required_num": 500,
+                "required_text": "aaaah",
+                "conditional_text": "lolz",
+            }
+        });
+        assert_eq!(values, expected);
+    }
+
+    // Both showIfs are met
+    {
+        let inputs = json!({
+            "required_bool": true,
+            "required_num": 350,
+            "required_text": "ah",
+            "conditional_bool": false,
+            "conditional_text": "hmpf",
+        });
+
+        let values: serde_json::Value = ui_schema
+            .get_values::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?
+            .into();
+        let expected = json!({
+            "config": {
+                "required_num": 350,
+                "required_text": "ah",
+                "conditional_bool": false,
+                "conditional_text": "hmpf",
+            }
+        });
+        assert_eq!(values, expected);
+    }
+
+    Ok(())
+}

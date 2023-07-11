@@ -13,6 +13,7 @@ utoipa = ["dep:utoipa"]
 [dependencies]
 anyhow = "1.0.56"
 async-trait = "0.1.52"
+jsonlogic-rs = "0.2.3"
 reqwest = {version = "0.11.4", default-features = false, features = ["rustls-tls", "json"]}
 rust_decimal = {version = "1.22.0", default-features = false, features = ["serde"]}
 serde = {version = "1.0.136", features = ["derive"]}
