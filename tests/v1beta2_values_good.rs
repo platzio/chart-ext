@@ -1,6 +1,8 @@
 mod fake_db;
 mod utils;
 
+use std::collections::BTreeMap;
+
 use anyhow::Result;
 use fake_db::TestDb;
 use platz_chart_ext::{
@@ -233,6 +235,124 @@ async fn test4() -> Result<()> {
             }
         });
         assert_eq!(values, expected);
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test5() -> Result<()> {
+    let chart_ext = load_chart("v1beta2/chart6").await?;
+
+    let metadata = chart_ext.metadata.expect("Chart has no metadata");
+    assert_eq!(metadata.version, "1.0.0");
+
+    let ui_schema = chart_ext.ui_schema.expect("No ui_schema");
+    assert!(matches!(ui_schema, UiSchema::V1Beta1(_)));
+
+    // showIf is met, something selected and typed
+    {
+        let inputs = json!({
+            "required_bool": true,
+            "conditional_select": "123",
+            "conditional_text": "condtext"
+        });
+
+        let values: serde_json::Value = ui_schema
+            .get_values::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?
+            .into();
+        let expected = json!({
+            "config": {
+                "selected": {
+                    "id": "123",
+                    "a": "a123"
+                }
+            }
+        });
+
+        assert_eq!(values, expected);
+
+        let secrets = ui_schema
+            .get_secrets::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?;
+        assert_eq!(secrets.len(), 1);
+        let secret = &secrets[0];
+        assert_eq!(secret.name, "secret-env");
+        assert_eq!(
+            secret.attrs,
+            BTreeMap::from([
+                ("SELECTED_SECRET".into(), "a123".into()),
+                ("TYPED_SECRET".into(), "condtext".into())
+            ])
+        );
+    }
+
+    // showIf is not met
+    {
+        let inputs = json!({
+            "required_bool": false,
+        });
+
+        let values: serde_json::Value = ui_schema
+            .get_values::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?
+            .into();
+        let expected = json!({});
+        assert_eq!(values, expected);
+
+        let secrets = ui_schema
+            .get_secrets::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?;
+        assert!(secrets.is_empty());
+    }
+
+    // showIf is met, nothing selected, something typed
+    {
+        let inputs = json!({
+            "required_bool": true,
+            "conditional_text": "condtext"
+        });
+
+        ui_schema
+            .get_values::<TestDb>(Uuid::new_v4(), &inputs)
+            .await
+            .expect_err("gotta fail");
+
+        // Can't expect_err, since RenderedSecret is !Debug
+        assert!(ui_schema
+            .get_secrets::<TestDb>(Uuid::new_v4(), &inputs)
+            .await
+            .is_err());
+    }
+
+    // showIf is met, something selected, nothing typed
+    {
+        let inputs = json!({
+            "required_bool": true,
+            "conditional_select": "123",
+        });
+
+        let values: serde_json::Value = ui_schema
+            .get_values::<TestDb>(Uuid::new_v4(), &inputs)
+            .await?
+            .into();
+        let expected = json!({
+            "config": {
+                "selected": {
+                    "id": "123",
+                    "a": "a123"
+                }
+            }
+        });
+
+        assert_eq!(values, expected);
+
+        // Can't expect_err, since RenderedSecret is !Debug
+        assert!(ui_schema
+            .get_secrets::<TestDb>(Uuid::new_v4(), &inputs)
+            .await
+            .is_err());
     }
 
     Ok(())
