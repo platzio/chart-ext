@@ -1,0 +1,47 @@
+apiVersion: platz.io/v1beta1
+kind: ValuesUi
+inputs:
+  - id: required_bool
+    type: Checkbox
+    label: Required bool
+    initialValue: true
+    required: true    
+  - id: conditional_select
+    type: CollectionSelect
+    label: Optional select, shown if required bool is checked
+    collection: First
+    required: true
+    showIf: { "===": [var: required_bool, true] }
+  - id: conditional_text
+    type: text
+    label: Conditional text, shown if required bool is checked
+    required: true
+    showIf: { "===": [var: required_bool, true] }
+outputs:
+  values:
+    - path:
+        - config
+        - selected
+        - id
+      value:
+        FieldProperty: 
+          input: conditional_select
+          property: id
+    - path:
+        - config
+        - selected
+        - a
+      value:
+        FieldProperty: 
+          input: conditional_select
+          property: a
+  secrets:
+    secret-env:
+      SELECTED_SECRET:
+        FieldProperty:
+          input: conditional_select
+          property: a
+      TYPED_SECRET:
+        FieldValue:
+          input: conditional_text
+          

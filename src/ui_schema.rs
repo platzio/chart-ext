@@ -79,9 +79,14 @@ impl UiSchema {
         for (secret_name, attrs_schema) in schema_outputs.secrets.0.iter() {
             let mut attrs: BTreeMap<String, String> = Default::default();
             for (key, attr_schema) in attrs_schema.iter() {
-                let value = attr_schema
+                let value = match attr_schema
                     .resolve::<C>(env_id, schema_inputs, inputs)
-                    .await?;
+                    .await
+                {
+                    Ok(x) => x,
+                    Err(UiSchemaInputError::OptionalInputMissing(_)) => continue,
+                    Err(other_err) => return Err(other_err),
+                };
                 attrs.insert(
                     key.clone(),
                     value
@@ -89,10 +94,13 @@ impl UiSchema {
                         .map_or_else(|| value.to_string(), |v| v.to_owned()),
                 );
             }
-            result.push(RenderedSecret {
-                name: secret_name.to_owned(),
-                attrs,
-            })
+            
+            if !attrs.is_empty() {
+                result.push(RenderedSecret {
+                    name: secret_name.to_owned(),
+                    attrs,
+                })
+            }
         }
         Ok(result)
     }
