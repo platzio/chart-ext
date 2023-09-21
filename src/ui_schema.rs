@@ -94,7 +94,7 @@ impl UiSchema {
                         .map_or_else(|| value.to_string(), |v| v.to_owned()),
                 );
             }
-            
+
             if !attrs.is_empty() {
                 result.push(RenderedSecret {
                     name: secret_name.to_owned(),
@@ -452,7 +452,7 @@ impl UiSchemaOutputValue {
     {
         match self.value.resolve::<C>(env_id, input_schema, inputs).await {
             Ok(value) => {
-                insert_into_map(outputs, &self.path, value);
+                insert_into_map_ex(outputs, &self.path, value);
                 Ok(())
             }
             Err(UiSchemaInputError::OptionalInputMissing(_)) => Ok(()),
@@ -464,4 +464,348 @@ impl UiSchemaOutputValue {
 pub struct RenderedSecret {
     pub name: String,
     pub attrs: BTreeMap<String, String>,
+}
+
+/// Extends insert_into_map by supporting syntax for path items which are array cell's references.
+///
+/// A path element of [NUMBER] (with the bracket) will regard current location as an array and will create null
+/// items as neccessary up to required.
+///
+/// A path element of [=] will reference the last existing element of the array (if empty, will create an element)
+///
+/// A path element of [+] will add an element in the end of the array and refer to it.
+/// UiSchemaOutputs's values are resolved in order of appearance, so this creates a predictable array
+///
+/// Arrays of arrays, maps of arrays, arrays of maps, maps of maps, are all supported.
+/// Array sizes are limited to protect from bad input.
+///
+/// A fair share of examples is present in the test_insert_into_map_ex function below.
+///
+/// Do note that if you supply the path in a yaml array (as in values-ui.yaml outputs), you'll have to quote around the brackets
+/// Examples for values-ui.yaml:
+/// outputs:
+///   values:
+///   - path:
+///       - config
+///       - selected
+///       - "[+]"
+///       - id
+///     value:
+///       FieldProperty:
+///         input: conditional_select1
+///         property: id
+///   - path:
+///       - config
+///       - selected
+///       - "[=]"
+///       - name
+///     value:
+///       FieldProperty:
+///         input: conditional_select1
+///         property: name
+///   - path:
+///       - config
+///       - selected
+///       - "[+]"
+///       - id
+///     value:
+///       FieldProperty:
+///         input: conditional_select2
+///         property: id
+///   - path:
+///       - config
+///       - selected
+///       - "[=]"
+///       - name
+///     value:
+///       FieldProperty:
+///         input: conditional_select2
+///         property: name
+///
+/// In the example, we output an array "config.selected", whose items are values with keys "id", and "name"
+fn insert_into_map_ex(map: &mut Map, path: &[String], value: serde_json::Value) {
+    let mut iter: std::iter::Peekable<std::slice::Iter<'_, String>> = path.iter().peekable();
+    if iter.peek().is_some() {
+        recursively_insert_into_map(map, &mut iter, value);
+    }
+}
+
+const MAX_ARRAY_SIZE: usize = 1024;
+
+fn recursively_insert_into_map(
+    map: &mut Map,
+    iter: &mut std::iter::Peekable<std::slice::Iter<'_, String>>,
+    value: serde_json::Value,
+) {
+    let part = iter.next().unwrap(); // Safe to unwrap since we alwasy peek before we next
+    let next_part = iter.peek();
+
+    match next_part {
+        None => {
+            map.insert(part.to_owned(), value);
+        }
+        Some(next_part) => {
+            if map.contains_key(part) {
+                match map.get_mut(part).unwrap() {
+                    serde_json::Value::Array(inner_vec) => {
+                        recursively_insert_into_vec(inner_vec, iter, value);
+                    }
+                    serde_json::Value::Object(inner_map) => {
+                        recursively_insert_into_map(inner_map, iter, value);
+                    }
+                    _ => (),
+                }
+            } else if next_part.starts_with('[') && next_part.ends_with(']') {
+                let inner_vec = map
+                    .entry(part.to_owned())
+                    .or_insert(serde_json::Value::Array(Vec::new()))
+                    .as_array_mut()
+                    .unwrap();
+                recursively_insert_into_vec(inner_vec, iter, value);
+            } else {
+                let inner_map = map
+                    .entry(part.to_owned())
+                    .or_insert(serde_json::Value::Object(Map::new()))
+                    .as_object_mut()
+                    .unwrap();
+                recursively_insert_into_map(inner_map, iter, value);
+            }
+        }
+    };
+}
+
+fn recursively_insert_into_vec(
+    vec: &mut Vec<serde_json::Value>,
+    iter: &mut std::iter::Peekable<std::slice::Iter<'_, String>>,
+    value: serde_json::Value,
+) {
+    let part = iter.next().unwrap(); // Safe to unwrap since we alwasy peek before we next
+
+    let inner_part =
+        if let Some(inner_part) = part.strip_prefix('[').and_then(|x| x.strip_suffix(']')) {
+            inner_part
+        } else {
+            return;
+        };
+
+    let cell = if let Ok(number) = inner_part.parse::<usize>() {
+        // Gotta protect ourselves from bad input
+        if number >= MAX_ARRAY_SIZE {
+            return;
+        }
+        if vec.len() < number + 1 {
+            vec.resize(number + 1, Default::default());
+        }
+        &mut vec[number]
+    } else if inner_part == "+" {
+        if vec.len() >= MAX_ARRAY_SIZE {
+            return;
+        }
+
+        vec.push(Default::default());
+        vec.last_mut().unwrap()
+    } else if inner_part == "=" {
+        if vec.is_empty() {
+            vec.push(Default::default());
+        }
+        vec.last_mut().unwrap()
+    } else {
+        return;
+    };
+
+    let next_part = iter.peek();
+
+    match next_part {
+        None => {
+            *cell = value;
+        }
+        Some(next_part) => match cell {
+            serde_json::Value::Object(inner_map) => {
+                recursively_insert_into_map(inner_map, iter, value);
+            }
+            serde_json::Value::Array(inner_vec) => {
+                recursively_insert_into_vec(inner_vec, iter, value);
+            }
+            serde_json::Value::Null => {
+                if next_part.starts_with('[') && next_part.ends_with(']') {
+                    *cell = serde_json::Value::Array(Vec::new());
+                    recursively_insert_into_vec(cell.as_array_mut().unwrap(), iter, value);
+                } else {
+                    *cell = serde_json::Value::Object(Map::new());
+                    recursively_insert_into_map(cell.as_object_mut().unwrap(), iter, value);
+                }
+            }
+            _ => (),
+        },
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::insert_into_map_ex;
+
+    fn str_arr(strs: &[&str]) -> Vec<String> {
+        strs.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn test_insert_into_map_ex() {
+        let mut value = serde_json::json!({});
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["v"]),
+            "v_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["m", "k1"]),
+            "m_k1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["m", "k2"]),
+            "m_k2_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["m", "m", "k1"]),
+            "m_m_k1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a1", "[=]"]),
+            "a1_0_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a1", "[+]"]),
+            "a1_1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a2", "[=]", "k1"]),
+            "a2_0_k1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a2", "[=]", "k2"]),
+            "a2_0_k2_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a2", "[+]", "k1"]),
+            "a2_1_k1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a2", "[+]", "k1"]),
+            "a2_2_k1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a2", "[1]", "k2"]),
+            "a2_1_k2_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a3", "[=]", "[=]"]),
+            "a3_0_0_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a3", "[=]", "[+]"]),
+            "a3_0_1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a3", "[=]", "[+]", "k1"]),
+            "a3_0_2_k1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a3", "[=]", "[=]", "k2"]),
+            "a3_0_2_k2_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a3", "[+]", "[=]", "k1"]),
+            "a3_1_0_k1_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a3", "[=]", "[2]"]),
+            "a3_1_2_val".into(),
+        );
+
+        insert_into_map_ex(
+            value.as_object_mut().unwrap(),
+            &str_arr(&["a3", "[0]", "[=]", "k3"]),
+            "a3_0_2_k3_val".into(),
+        );
+
+        let expected = serde_json::json!({
+            "v": "v_val",
+            "m": {
+                "k1": "m_k1_val",
+                "k2": "m_k2_val",
+                "m": {
+                    "k1" : "m_m_k1_val"
+                }
+            },
+            "a1": [
+                "a1_0_val",
+                "a1_1_val"
+            ],
+            "a2": [
+                {
+                    "k1": "a2_0_k1_val",
+                    "k2": "a2_0_k2_val"
+                },
+                {
+                    "k1": "a2_1_k1_val",
+                    "k2": "a2_1_k2_val"
+                },
+                {
+                    "k1": "a2_2_k1_val",
+                }
+            ],
+            "a3": [
+                [
+                    "a3_0_0_val",
+                    "a3_0_1_val",
+                    {
+                        "k1": "a3_0_2_k1_val",
+                        "k2": "a3_0_2_k2_val",
+                        "k3": "a3_0_2_k3_val",
+                    }
+                ],
+                [
+                    {
+                        "k1": "a3_1_0_k1_val"
+                    },
+                    null,
+                    "a3_1_2_val"
+                ]
+            ]
+        });
+
+        assert_eq!(value, expected)
+    }
 }
