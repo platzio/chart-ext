@@ -18,7 +18,7 @@ impl ChartExtActionsV0 {
     }
 
     pub fn get_actions(&self) -> Vec<ChartExtActionV0> {
-        self.actions.iter().cloned().collect()
+        self.actions.to_vec()
     }
 }
 
