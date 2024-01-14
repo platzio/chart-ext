@@ -9,7 +9,7 @@ pub use self::v0::{
 pub use self::v1beta1::{ChartExtActionV1Beta1, ChartExtActionsV1Beta1};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(untagged)]
 pub enum ChartExtActions {
@@ -22,6 +22,13 @@ impl ChartExtActions {
         match self {
             Self::V1Beta1(v1) => v1.find(action_id),
             Self::V0(v0) => v0.find(action_id),
+        }
+    }
+
+    pub fn get_actions(&self) -> Vec<ChartExtActionV0> {
+        match self {
+            Self::V1Beta1(v1) => v1.get_actions(),
+            Self::V0(v0) => v0.get_actions(),
         }
     }
 }

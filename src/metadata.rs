@@ -2,7 +2,7 @@ use crate::versions::HelmChartV2;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 #[serde(from = "HelmChart")]
 pub struct ChartMetadata {
