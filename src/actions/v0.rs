@@ -16,6 +16,10 @@ impl ChartExtActionsV0 {
     pub fn find(&self, action_id: &str) -> Option<&ChartExtActionV0> {
         self.actions.iter().find(|action| action.id == action_id)
     }
+
+    pub fn get_actions(&self) -> Vec<ChartExtActionV0> {
+        self.actions.iter().cloned().collect()
+    }
 }
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq, Serialize, Deserialize)]

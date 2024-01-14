@@ -24,4 +24,11 @@ impl ChartExtActions {
             Self::V0(v0) => v0.find(action_id),
         }
     }
+
+    pub fn get_actions(&self) -> Vec<ChartExtActionV0> {
+        match self {
+            Self::V1Beta1(v1) => v1.get_actions(),
+            Self::V0(v0) => v0.get_actions(),
+        }
+    }
 }

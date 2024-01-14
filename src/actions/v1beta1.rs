@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 pub struct ChartExtActionsV1Beta1(Vec<ChartExtActionV1Beta1>);
 
 impl ChartExtActionsV1Beta1 {
+    pub fn get_actions(&self) -> Vec<ChartExtActionV0> {
+        self.0.iter().map(|x| x.spec.clone()).collect()
+    }
     pub fn find(&self, action_id: &str) -> Option<&ChartExtActionV0> {
         self.0
             .iter()
