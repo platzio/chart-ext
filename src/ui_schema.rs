@@ -19,6 +19,14 @@ pub enum UiSchema {
 }
 
 impl UiSchema {
+    pub fn get_inputs(&self) -> Vec<UiSchemaInput> {
+        let schema_inputs = match self {
+            Self::V1Beta1(v1) => &v1.inner.inputs,
+            Self::V0(v0) => &v0.inputs,
+        };
+        schema_inputs.to_vec()
+    }
+
     pub fn is_collection_in_inputs<C>(
         &self,
         inputs: &serde_json::Value,
@@ -29,11 +37,7 @@ impl UiSchema {
         C: UiSchemaCollections,
     {
         let collection_value = serde_json::to_value(collection).unwrap();
-        let schema_inputs = match self {
-            Self::V1Beta1(v1) => &v1.inner.inputs,
-            Self::V0(v0) => &v0.inputs,
-        };
-        schema_inputs.iter().any(|input| {
+        self.get_inputs().iter().any(|input| {
             let used_collection = match &input.input_type.single_type {
                 UiSchemaInputSingleType::CollectionSelect { collection } => Some(collection),
                 _ => None,
