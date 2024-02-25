@@ -26,6 +26,13 @@ impl UiSchema {
         }
     }
 
+    pub fn get_outputs(&self) -> &UiSchemaOutputs {
+        match self {
+            Self::V1Beta1(v1) => &v1.inner.outputs,
+            Self::V0(v0) => &v0.outputs,
+        }
+    }
+
     pub fn is_collection_in_inputs<C>(
         &self,
         inputs: &serde_json::Value,
@@ -53,12 +60,9 @@ impl UiSchema {
     where
         C: UiSchemaCollections,
     {
-        let (schema_inputs, schema_outputs) = match self {
-            Self::V1Beta1(v1) => (&v1.inner.inputs, &v1.inner.outputs),
-            Self::V0(v0) => (&v0.inputs, &v0.outputs),
-        };
+        let schema_inputs = self.get_inputs();
         let mut values = Map::new();
-        for output in schema_outputs.values.iter() {
+        for output in self.get_outputs().values.iter() {
             output
                 .resolve_into::<C>(env_id, schema_inputs, inputs, &mut values)
                 .await?;
@@ -75,11 +79,8 @@ impl UiSchema {
         C: UiSchemaCollections,
     {
         let mut result: Vec<RenderedSecret> = Vec::new();
-        let (schema_inputs, schema_outputs) = match self {
-            Self::V1Beta1(v1) => (&v1.inner.inputs, &v1.inner.outputs),
-            Self::V0(v0) => (&v0.inputs, &v0.outputs),
-        };
-        for (secret_name, attrs_schema) in schema_outputs.secrets.0.iter() {
+        let schema_inputs = self.get_inputs();
+        for (secret_name, attrs_schema) in self.get_outputs().secrets.0.iter() {
             let mut attrs: BTreeMap<String, String> = Default::default();
             for (key, attr_schema) in attrs_schema.iter() {
                 let value = match attr_schema
