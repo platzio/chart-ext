@@ -487,6 +487,8 @@ pub struct RenderedSecret {
 ///
 /// Do note that if you supply the path in a yaml array (as in values-ui.yaml outputs), you'll have to quote around the brackets
 /// Examples for values-ui.yaml:
+///
+/// ```
 /// outputs:
 ///   values:
 ///   - path:
@@ -525,6 +527,7 @@ pub struct RenderedSecret {
 ///       FieldProperty:
 ///         input: conditional_select2
 ///         property: name
+/// ```
 ///
 /// In the example, we output an array "config.selected", whose items are values with keys "id", and "name"
 fn insert_into_map_ex(map: &mut Map, path: &[String], value: serde_json::Value) {
