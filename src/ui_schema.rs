@@ -488,7 +488,7 @@ pub struct RenderedSecret {
 /// Do note that if you supply the path in a yaml array (as in values-ui.yaml outputs), you'll have to quote around the brackets
 /// Examples for values-ui.yaml:
 ///
-/// ```
+/// ```yaml
 /// outputs:
 ///   values:
 ///   - path:
