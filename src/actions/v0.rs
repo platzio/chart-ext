@@ -56,10 +56,11 @@ pub struct ChartExtActionTarget {
 }
 
 impl ChartExtActionTarget {
-    pub async fn call<R, T>(&self, resolver: &R, body: T) -> anyhow::Result<String>
+    pub async fn call<R, T, E>(&self, resolver: &R, body: T) -> Result<String, E>
     where
         R: ChartExtActionTargetResolver,
         T: Serialize,
+        E: From<R::Error> + From<reqwest::Error>,
     {
         let url = resolver.resolve(self).await?;
         let method = match self.method {
@@ -81,9 +82,11 @@ impl ChartExtActionTarget {
     }
 }
 
-#[async_trait::async_trait]
 pub trait ChartExtActionTargetResolver {
-    async fn resolve(&self, target: &ChartExtActionTarget) -> anyhow::Result<Url>;
+    type Error;
+
+    #[allow(async_fn_in_trait)]
+    async fn resolve(&self, target: &ChartExtActionTarget) -> Result<Url, Self::Error>;
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

@@ -1,15 +1,14 @@
 use crate::UiSchemaInputError;
-use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
 use uuid::Uuid;
 
-#[async_trait]
 pub trait UiSchemaCollections
 where
     Self: DeserializeOwned + Serialize + std::fmt::Display,
 {
     type Error: std::fmt::Display;
 
+    #[allow(async_fn_in_trait)]
     async fn resolve(
         &self,
         env_id: Uuid,

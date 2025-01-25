@@ -13,7 +13,6 @@ pub enum TestDb {
 #[derive(Debug, thiserror::Error)]
 pub enum TestDbError {}
 
-#[async_trait::async_trait]
 impl UiSchemaCollections for TestDb {
     type Error = TestDbError;
 

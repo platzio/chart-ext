@@ -4,7 +4,7 @@ edition = "2021"
 license = "Apache-2.0"
 name = "platz-chart-ext"
 repository = "https://github.com/platzio/chart-ext"
-version = "0.6.0"
+version = "0.6.1"
 
 [features]
 default = []
@@ -12,7 +12,6 @@ utoipa = ["dep:utoipa"]
 
 [dependencies]
 anyhow = "1.0.95"
-async-trait = "0.1.85"
 jsonlogic-rs = "0.5.0"
 reqwest = { version = "0.12.12", default-features = false, features = [
     "rustls-tls",
