@@ -9,7 +9,6 @@ pub struct ChartMetadata {
     pub version: String,
     pub git_commit: Option<String>,
     pub git_branch: Option<String>,
-    #[cfg_attr(feature="utoipa", schema(value_type = Option<String>))]
     pub git_repo: Option<Url>,
     pub git_provider: Option<String>,
 }

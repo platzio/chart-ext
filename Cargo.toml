@@ -4,7 +4,7 @@ edition = "2021"
 license = "Apache-2.0"
 name = "platz-chart-ext"
 repository = "https://github.com/platzio/chart-ext"
-version = "0.6.2"
+version = "0.6.3"
 
 [features]
 default = []
@@ -30,6 +30,7 @@ url = { version = "2.5.4", features = ["serde"] }
 utoipa = { optional = true, version = "5", features = [
     "chrono",
     "decimal",
+    "url",
     "uuid",
 ] }
 uuid = { version = "1", features = ["v4"] }
