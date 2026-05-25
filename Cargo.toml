@@ -11,22 +11,22 @@ default = []
 utoipa = ["dep:utoipa"]
 
 [dependencies]
-anyhow = "1.0.98"
+anyhow = "1.0.102"
 jsonlogic-rs = "0.5.0"
-reqwest = { version = "0.12.22", default-features = false, features = [
-    "rustls-tls",
+reqwest = { version = "0.13.3", default-features = false, features = [
+    "rustls",
     "json",
 ] }
-rust_decimal = { version = "1.37.2", default-features = false, features = [
+rust_decimal = { version = "1.42.0", default-features = false, features = [
     "serde",
 ] }
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.142"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
 serde_yaml = "0.9.34"
-strum = { version = "0.27", features = ["derive"] }
-thiserror = "2.0.12"
+strum = { version = "0.28", features = ["derive"] }
+thiserror = "2.0.18"
 tokio = { version = "1", features = ["fs", "macros"] }
-url = { version = "2.5.4", features = ["serde"] }
+url = { version = "2.5.8", features = ["serde"] }
 utoipa = { optional = true, version = "5", features = [
     "chrono",
     "decimal",
