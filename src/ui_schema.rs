@@ -337,7 +337,7 @@ impl UiSchemaInputRef {
         C: UiSchemaCollections,
     {
         if let Some(show_if) = schema.show_if.as_ref() {
-            let res = jsonlogic_rs::apply(show_if, inputs);
+            let res = juspay_jsonlogic::apply(show_if, inputs);
             if !matches!(res, Ok(serde_json::Value::Bool(true))) {
                 return Err(UiSchemaInputError::OptionalInputMissing(id.to_owned()));
             }
