@@ -12,7 +12,7 @@ utoipa = ["dep:utoipa"]
 
 [dependencies]
 anyhow = "1.0.102"
-jsonlogic-rs = "0.5.0"
+juspay_jsonlogic = "0.5.5"
 reqwest = { version = "0.13.3", default-features = false, features = [
     "rustls",
     "json",
