@@ -5,8 +5,14 @@ on:
 
 jobs:
   test:
-    name: 🧪 Test and Lint
+    name: 🧪 Test and Lint (${{ matrix.profile }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        profile:
+          - debug
+          - release
     steps:
       - name: 🛠 Checkout
         uses: actions/checkout@v4
@@ -18,8 +24,8 @@ jobs:
 
       - name: 📦 Cargo clippy (feature powerset)
         run: |
-          cargo hack clippy --feature-powerset -- -D warnings
+          cargo hack clippy --feature-powerset ${{ matrix.profile == 'release' && '--release' || '' }} -- -D warnings
 
       - name: 🧪 Cargo test (feature powerset)
         run: |
-          cargo hack test --feature-powerset
+          cargo hack test --feature-powerset ${{ matrix.profile == 'release' && '--release' || '' }}
