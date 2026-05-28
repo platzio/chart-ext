@@ -6,28 +6,16 @@ on:
       - v**
 
 jobs:
-  build:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  publish:
     name: 🚀 Publish to crates.io
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: 🛠 Checkout
         uses: actions/checkout@v4
-
-      - name: 📦 Cargo clippy (default features)
-        run: |
-          cargo clippy -- -D warnings
-
-      - name: 📦 Cargo clippy (all features)
-        run: |
-          cargo clippy --all-features -- -D warnings
-
-      - name: 📦 Cargo build (default features)
-        run: |
-          cargo build --release
-
-      - name: 📦 Cargo build (all features)
-        run: |
-          cargo build --release --all-features
 
       - name: 🚀 Publish Crate
         env:

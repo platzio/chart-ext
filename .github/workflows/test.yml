@@ -1,0 +1,25 @@
+name: Test and Lint
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: 🧪 Test and Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛠 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Install cargo-hack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+
+      - name: 📦 Cargo clippy (feature powerset)
+        run: |
+          cargo hack clippy --feature-powerset -- -D warnings
+
+      - name: 🧪 Cargo test (feature powerset)
+        run: |
+          cargo hack test --feature-powerset
