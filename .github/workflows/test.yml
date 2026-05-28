@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   test:
-    name: 🧪 Test (${{ matrix.profile }})
+    name: 🧪 ${{ matrix.task }} (${{ matrix.profile }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -17,19 +17,20 @@ jobs:
         profile:
           - debug
           - release
+        task:
+          - clippy
+          - test
+    env:
+      RUSTFLAGS: -D warnings
     steps:
       - name: 🛠 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Install cargo-hack
         uses: taiki-e/install-action@v2
         with:
           tool: cargo-hack
 
-      - name: 📦 Cargo clippy (feature powerset)
+      - name: 📦 Cargo ${{ matrix.task }} (feature powerset)
         run: |
-          cargo hack clippy --feature-powerset ${{ matrix.profile == 'release' && '--release' || '' }} -- -D warnings
-
-      - name: 🧪 Cargo test (feature powerset)
-        run: |
-          cargo hack test --feature-powerset ${{ matrix.profile == 'release' && '--release' || '' }}
+          cargo hack ${{ matrix.task }} --feature-powerset ${{ matrix.profile == 'release' && '--release' || '' }}
