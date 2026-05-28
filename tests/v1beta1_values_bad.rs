@@ -1,4 +1,3 @@
-mod fake_db;
 mod utils;
 
 use anyhow::Result;
