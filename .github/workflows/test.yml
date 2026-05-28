@@ -1,4 +1,4 @@
-name: Test and Lint
+name: 🧪 Test
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    name: 🧪 Test and Lint (${{ matrix.profile }})
+    name: 🧪 Test (${{ matrix.profile }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
