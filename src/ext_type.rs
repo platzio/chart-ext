@@ -143,7 +143,7 @@ where
     T: Serialize + DeserializeOwned,
 {
     let Some(filename) = filename else {
-        return Ok(None)
+        return Ok(None);
     };
 
     let full_path = path.join(filename);
